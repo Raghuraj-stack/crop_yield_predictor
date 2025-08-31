@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriVision - Crop Yield Predictor</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0d1117; /* page fallback; image is on .main only */
+      color: white;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Layout */
+    .container {
+      display: flex;
+      flex: 1;
+      min-height: 0; /* prevents overflow issues */
+    }
+
+    /* Sidebar (kept solid for readability) */
+    .sidebar {
+      width: 170px;
+      background: #4A3E38;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      transition: width 0.3s ease-in-out; /* Smooth transition for the width change */
+      white-space: nowrap;
+    }
+    .sidebar:hover {
+      width: 300px; /* Expanded width on hover */
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    select, input, button {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #8D6B4E;
+    }
+    input[type="text"], input[type="number"], select {
+      background: #5C4F48;
+      color: #F8F5EC; /* Off-white text color */
+      border: 1px solid #7D6B62;
+    }
+
+  button {
+    margin-top: 20px;
+    background: #8D6B4E;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px; /* A little more padding can make the initial size look better */
+    transition: transform 0.2s ease-in-out; /* Adds a smooth transition */
+  }
+
+  button:hover {
+    transform: scale(1.05); /* Enlarges the button by 5% */
+  }
+
+    /* Main: background image + overlay + content layered above */
+    .main {
+      flex: 1;
+      padding: 40px;
+      position: relative;
+       background: url("beautiful-view-field-covered-green-grass-captured-canggu-bali.jpg") no-repeat center center/cover;
+
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Readability overlay */
+    .main::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.45); /* adjust transparency */
+    z-index: 1;
+  }
+
+  .main > * {
+  position: relative;
+  z-index: 2; /* makes text sit above overlay */
+  }
+
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 45px;
+      font-weight: bold;
+      color: #D2B48C;
+    }
+
+    .lang-select {
+      background: #21262d;
+      color: white;
+      padding: 3px 6px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+      max-width: 100px;
+      overflow: hidden;
+      -webkit-appearance: none; /* For Chrome, Safari, Opera */
+      -moz-appearance: none;    /* For Firefox */
+      appearance: none;         /* For modern browsers */
+    
+    /* For IE 10+ */
+    select::-ms-expand {
+        display: none;
+    }
+
+    }
+   
+
+    .description {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #f0f6fc; /* brighter on image */
+      max-width: 900px;
+    }
+
+    .result {
+      margin-top: 30px;
+      background: rgba(3,58,22,0.82); /* semi-transparent so image shows through */
+      padding: 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #3fb950;
+      transition: transform 0.3s ease-in-out;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    .result:hover {
+      transform: scale(1.03);
+    }
+
+    /* Footer */
+    footer {
+      background: #161b22;
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      color: #8b949e;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2 id="sidebarTitle">Input Parameters</h2>
+
+      <label for="state" id="labelState">State</label>
+      <select id="state">
+        <option value="" selected disabled>Select State</option>
+        <option value="Andhra Pradesh">Andhra Pradesh</option>
+        <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+        <option value="Assam">Assam</option>
+        <option value="Bihar">Bihar</option>
+        <option value="Chhattisgarh">Chhattisgarh</option>
+        <option value="Goa">Goa</option>
+        <option value="Gujarat">Gujarat</option>
+        <option value="Haryana">Haryana</option>
+        <option value="Himachal Pradesh">Himachal Pradesh</option>
+        <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+        <option value="Jharkhand">Jharkhand</option>
+        <option value="Karnataka">Karnataka</option>
+        <option value="Kerala">Kerala</option>
+        <option value="Madhya Pradesh">Madhya Pradesh</option>
+        <option value="Maharashtra">Maharashtra</option>
+        <option value="Manipur">Manipur</option>
+        <option value="Meghalaya">Meghalaya</option>
+        <option value="Mizoram">Mizoram</option>
+        <option value="Nagaland">Nagaland</option>
+        <option value="Odisha">Odisha</option>
+        <option value="Punjab">Punjab</option>
+        <option value="Rajasthan">Rajasthan</option>
+        <option value="Sikkim">Sikkim</option>
+        <option value="Tamil Nadu">Tamil Nadu</option>
+        <option value="Telangana">Telangana</option>
+        <option value="Tripura">Tripura</option>
+        <option value="Uttar Pradesh">Uttar Pradesh</option>
+        <option value="Uttarakhand">Uttarakhand</option>
+        <option value="West Bengal">West Bengal</option>
+      </select>
+
+      <label for="crop" id="labelCrop">Crop</label>
+      <select id="crop">
+        <option value="" selected disabled>Select Crop</option>
+        <option value="Rice">Rice</option>
+        <option value="Wheat">Wheat</option>
+        <option value="Maize">Maize</option>
+        <option value="Cotton">Cotton</option>
+        <option value="Sugarcane">Sugarcane</option>
+        <option value="Soyabean">Soyabean</option>
+        <option value="Barley">Barley</option>
+        <option value="Gram">Gram</option>
+        <option value="Turmeric">Turmeric</option>
+        <option value="Banana">Banana</option>
+      </select>
+
+      <label for="year" id="labelYear">Year</label>
+      <input
+        type="range" id="year" min="1950" max="2024" value="2010"
+        oninput="document.getElementById('yearValue').innerText=this.value"
+      >
+      <div id="yearValue" style="text-align:center; margin-top:5px;">2010</div>
+
+      <label for="fertilizer" id="labelFertilizer">Fertilizer Usage (kg/ha)</label>
+      <input type="number" id="fertilizer" placeholder="e.g., 100">
+
+      <label for="pesticide" id="labelPesticide">Pesticide Usage (kg/ha)</label>
+      <input type="number" id="pesticide" placeholder="e.g., 5">
+
+      <button id="predictBtn" onclick="predictYield()">Predict Yield</button>
+    </div>
+
+    <!-- Main Content (text overlays the image) -->
+    <div class="main">
+      <header>
+        <div class="logo">AgriVision</div>
+        <select class="lang-select" id="language" onchange="changeLanguage()">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="bn">বাংলা</option>
+          <option value="ta">தமிழ்</option>
+          <option value="te">తెలుగు</option>
+          <option value="ml">മലയാളം</option>
+          <option value="pa">ਪੰਜਾਬੀ</option>
+          <option value="mr">मराठी</option>
+        </select>
+      </header>
+
+      <h1 id="title">Crop Yield Predictor</h1>
+      <p class="description" id="desc">
+        This tool predicts crop yield based on environmental and agricultural inputs.
+        Provide your values on the left panel and get an instant estimate.
+      </p>
+
+      <div class="result" id="resultBox">
+        Predicted Yield will appear here.
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 AgriVision. All rights reserved. Built for empowering farmers.
+  </footer>
+
+  <script>
+    function predictYield() {
+      const state = document.getElementById('state').value;
+      const crop = document.getElementById('crop').value;
+      const year = document.getElementById('year').value;
+      const fert = document.getElementById('fertilizer').value;
+      const pest = document.getElementById('pesticide').value;
+
+      document.getElementById('resultBox').innerHTML =
+        `Predicted Yield for <b>${crop}</b> in <b>${state}</b> (${year}): <b>${(Math.random()*3+1).toFixed(2)} tons/ha</b>`;
+    }
+
+    const translations = {
+      en: {
+        title: "Crop Yield Predictor", desc: "This tool predicts crop yield based on environmental and agricultural inputs. Provide your values on the left panel and get an instant estimate.",
+        sidebar: "Input Parameters", state: "State", crop: "Crop", year: "Year", fert: "Fertilizer Usage (kg/ha)", pest: "Pesticide Usage (kg/ha)", predict: "Predict Yield"
+      },
+      hi: {
+        title: "फसल उपज भविष्यवक्ता", desc: "यह उपकरण पर्यावरणीय और कृषि इनपुट के आधार पर फसल की उपज का अनुमान लगाता है। बाईं ओर मान दर्ज करें और तुरंत अनुमान प्राप्त करें।",
+        sidebar: "इनपुट पैरामीटर", state: "राज्य", crop: "फसल", year: "वर्ष", fert: "उर्वरक उपयोग (किग्रा/हे)", pest: "कीटनाशक उपयोग (किग्रा/हे)", predict: "उपज का अनुमान लगाएँ"
+      },
+      bn: {
+        title: "শস্য ফলন পূর্বাভাসক", desc: "এই সরঞ্জামটি পরিবেশগত এবং কৃষি ইনপুটের উপর ভিত্তি করে শস্যের ফলন পূর্বাভাস দেয়। বাম প্যানেলে মান প্রদান করুন এবং একটি তাত্ক্ষণিক অনুমান পান।",
+        sidebar: "ইনপুট পরামিতি", state: "রাজ্য", crop: "শস্য", year: "বছর", fert: "সার ব্যবহার (কেজি/হা)", pest: "কীটনাশক ব্যবহার (কেজি/হা)", predict: "ফলন অনুমান করুন"
+      },
+      ta: {
+        title: "பயிர் விளைச்சல் கணிப்பாளர்", desc: "இந்த கருவி சுற்றுச்சூழல் மற்றும் வேளாண் உள்ளீடுகளை அடிப்படையாகக் கொண்டு பயிர் விளைச்சலை கணிக்கிறது. இடது பக்கத்தில் உங்கள் மதிப்புகளை உள்ளிடவும் மற்றும் உடனடி மதிப்பீட்டை பெறவும்.",
+        sidebar: "உள்ளீட்டு அளவுருக்கள்", state: "மாநிலம்", crop: "பயிர்", year: "ஆண்டு", fert: "உர பயன்பாடு (கி.கி/ஹெ)", pest: "பூச்சிக்கொல்லி பயன்பாடு (கி.கி/ஹெ)", predict: "விளைச்சல் கணிக்கவும்"
+      },
+      te: {
+        title: "పంట దిగుబడి అంచనా", desc: "ఈ సాధనం పర్యావరణ మరియు వ్యవసాయ ఇన్‌పుట్‌ల ఆధారంగా పంట దిగుబడిని అంచనా వేస్తుంది. ఎడమ ప్యానెల్‌లో విలువలను ఇవ్వండి మరియు తక్షణ అంచనాను పొందండి.",
+        sidebar: "ఇన్పుట్ పరామితులు", state: "రాష్ట్రం", crop: "పంట", year: "సంవత్సరం", fert: "ఎరువుల వినియోగం (kg/ha)", pest: "పురుగుమందుల వినియోగం (kg/ha)", predict: "దిగుబడి అంచనా"
+      },
+      ml: {
+        title: "വിളവെടുപ്പ് പ്രവചനം", desc: "ഈ ഉപകരണം പരിസ്ഥിതിയും കാർഷിക ഇൻപുട്ടുകളും അടിസ്ഥാനമാക്കി വിളയുടെ ഉൽപ്പാദനം പ്രവചിക്കുന്നു. ഇടതു പാനലിൽ നിങ്ങളുടെ മൂല്യങ്ങൾ നൽകുക, ഉടൻ തന്നെ ഫലങ്ങൾ ലഭിക്കും.",
+        sidebar: "ഇൻപുട്ട് പാരാമീറ്ററുകൾ", state: "സംസ്ഥാനം", crop: "വിള", year: "വർഷം", fert: "വളങ്ങളുടെ ഉപയോഗം (kg/ha)", pest: "കീടനാശിനികളുടെ ഉപയോഗം (kg/ha)", predict: "വിളവ് പ്രവചിക്കുക"
+      },
+      pa: {
+        title: "ਫਸਲ ਦੀ ਉਪਜ ਅਨੁਮਾਨਕ", desc: "ਇਹ ਸੰਦ ਵਾਤਾਵਰਣ ਅਤੇ ਖੇਤੀਬਾੜੀ ਦੇ ਇਨਪੁੱਟ ਦੇ ਆਧਾਰ 'ਤੇ ਫਸਲ ਦੀ ਉਪਜ ਦਾ ਅਨੁਮਾਨ ਲਗਾਉਂਦਾ ਹੈ। ਖੱਬੇ ਪੈਨਲ 'ਤੇ ਆਪਣੇ ਮੁੱਲ ਦਿਓ ਅਤੇ ਤੁਰੰਤ ਅਨੁਮਾਨ ਪ੍ਰਾਪਤ ਕਰੋ।",
+        sidebar: "ਇਨਪੁੱਟ ਪੈਰਾਮੀਟਰ", state: "ਰਾਜ", crop: "ਫਸਲ", year: "ਸਾਲ", fert: "ਖਾਦ ਦੀ ਵਰਤੋਂ (kg/ha)", pest: "ਕੀਟਨਾਸ਼ਕ ਦੀ ਵਰਤੋਂ (kg/ha)", predict: "ਉਪਜ ਅਨੁਮਾਨੋ"
+      },
+      mr: {
+        title: "पीक उत्पादन भविष्यवक्ता", desc: "हे साधन पर्यावरणीय आणि कृषी इनपुटच्या आधारे पीक उत्पादनाचा अंदाज लावते. डाव्या पॅनेलमध्ये तुमच्या मूल्यांचा प्रवेश करा आणि त्वरित अंदाज मिळवा.",
+        sidebar: "इनपुट पॅरामीटर्स", state: "राज्य", crop: "पिक", year: "वर्ष", fert: "खतांचा वापर (kg/ha)", pest: "किटकनाशकांचा वापर (kg/ha)", predict: "उत्पादन भाकीत करा"
+      }
+    };
+
+    function changeLanguage() {
+      const lang = document.getElementById('language').value;
+      document.getElementById('title').innerText = translations[lang].title;
+      document.getElementById('desc').innerText = translations[lang].desc;
+      document.getElementById('sidebarTitle').innerText = translations[lang].sidebar;
+      document.getElementById('labelState').innerText = translations[lang].state;
+      document.getElementById('labelCrop').innerText = translations[lang].crop;
+      document.getElementById('labelYear').innerText = translations[lang].year;
+      document.getElementById('labelFertilizer').innerText = translations[lang].fert;
+      document.getElementById('labelPesticide').innerText = translations[lang].pest;
+      document.getElementById('predictBtn').innerText = translations[lang].predict;
+    }
+  </script>
+
+</body>
+</html>
